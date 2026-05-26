@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlap Analysis Dashboard — Resource & Deliverable Conflicts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .dashboard-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #ef5350;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(244, 67, 54, 0.3);
+        }
+        .header p {
+            color: #90a4ae;
+            font-size: 0.95em;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #90a4ae;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab-button:hover {
+            background: rgba(79, 195, 247, 0.1);
+            border-color: #4fc3f7;
+            color: #4fc3f7;
+        }
+        .tab-button.active {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #ef5350;
+            color: #ef5350;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            color: #ef5350;
+            font-size: 1.3em;
+            margin: 25px 0 20px 0;
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #ef5350;
+            border-radius: 8px;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .kpi-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .kpi-card .label {
+            font-size: 0.75em;
+            color: #90a4ae;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .kpi-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ef5350;
+        }
+
+        .conflict-card {
+            background: rgba(244, 67, 54, 0.05);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .conflict-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .severity-critical { background: rgba(244, 67, 54, 0.3); color: #ef5350; }
+        .severity-high { background: rgba(255, 152, 0, 0.3); color: #ffb74d; }
+        .severity-medium { background: rgba(255, 193, 7, 0.3); color: #fdd835; }
+
+        .conflict-title {
+            font-size: 1.1em;
+            color: #ef5350;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .conflict-content {
+            font-size: 0.9em;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .person-list, .project-list, .track-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .person-badge, .project-badge, .track-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 0.8em;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .person-badge { border-color: rgba(79, 195, 247, 0.5); color: #64b5f6; }
+        .project-badge { border-color: rgba(102, 187, 106, 0.5); color: #81c784; }
+        .track-badge { border-color: rgba(171, 71, 188, 0.5); color: #ba68c8; }
+
+        .weeks-affected {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #ffb74d;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .overlap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .overlap-table thead {
+            background: rgba(244, 67, 54, 0.15);
+            border-bottom: 2px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .overlap-table th {
+            padding: 12px;
+            text-align: left;
+            color: #ef5350;
+            font-weight: 600;
+        }
+
+        .overlap-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #e0e0e0;
+        }
+
+        .overlap-table tr:hover {
+            background: rgba(244, 67, 54, 0.05);
+        }
+
+        .impact-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .impact-critical { background: #ef5350; }
+        .impact-high { background: #ffb74d; }
+        .impact-medium { background: #fdd835; }
+
+        .recommendation {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #69f0ae;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #81c784;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-card h3 {
+            color: #69f0ae;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .priority-marker {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            margin-bottom: 2px;
+        }
+        .priority-1 { background: #ef5350; }
+        .priority-2 { background: #ffb74d; }
+        .priority-3 { background: #fdd835; }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #78909c;
+            font-size: 0.85em;
+        }
+
+        .toggle-details {
+            cursor: pointer;
+            color: #4fc3f7;
+            text-decoration: underline;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+
+        .details {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #b0bec5;
+        }
+
+        .details.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>⚠️ OVERLAP ANALYSIS DASHBOARD</h1>
+            <p>Resource over-allocation conflicts & deliverable/study-area duplication</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('resource')">🔴 Resource Conflicts</button>
+            <button class="tab-button" onclick="switchTab('deliverable')">📦 Deliverable Overlap</button>
+            <button class="tab-button" onclick="switchTab('summary')">📊 Summary & Recs</button>
+        </div>
+
+        <!-- TAB 1: RESOURCE CONFLICTS -->
+        <div id="resource" class="tab-content active">
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="label">Peak Conflict Week</div>
+                    <div class="value">Jul W2-3</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Worst Case</div>
+                    <div class="value">13 projects</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Affected Personnel</div>
+                    <div class="value">11</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Total Conflicts</div>
+                    <div class="value">127+</div>
+                </div>
+            </div>
+
+            <div class="section-title">Critical Over-Allocation Incidents (Jul W2-3 Peak)</div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-critical">CRITICAL</span>
+                    <span class="conflict-title">Pandi: 13 Concurrent Projects</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Impact:</strong> Impossible to deliver quality; junior-grade resource at breaking point.
+                    <div class="person-list">
+                        City-Specific Air Filter Design, PM2.5 & PM10 Removal Study, Filter Lifecycle Analysis, Multi-City Validation Testing, Groove Pattern Development, Coil Coating Performance Study, Fins Coating Efficiency Study, Electrode Material Comparison, BLDC Compressor, Cold Temperature Refrigeration Optimization, Fresh Water Mixing Optimization, Power Boosting circuit, IoT-Based AWG Monitoring System
+                    </div>
+                    <div class="weeks-affected">📅 Peak: Jul W2-3; Chronic: Jun W1-Jun W5, Aug W1</div>
+                    <div class="recommendation">
+                        <strong>Action:</strong> Reduce to max 3–4 concurrent projects. Delegate Water Quality validation tasks to Dr. Suriya; defer some IoT work to Aug.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-critical">CRITICAL</span>
+                    <span class="conflict-title">Nithya: 13 Concurrent Projects</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Impact:</strong> Technical lead cannot split focus; quality of Product Dev & IoT at risk.
+                    <div class="person-list">
+                        City-Specific Air Filter Design, PM2.5 & PM10 Removal Study, Multi-City Validation Testing, Groove Pattern Development, Coil Coating Performance Study, Coil Material Development and Frost resistant Study, Fins Coating Efficiency Study, Corrosion-Resistant Coil Materials, Electrode Material Comparison, BLDC Compressor, Cold Temperature Refrigeration Optimization, Power Boosting circuit, IoT-Based AWG Monitoring System
+                    </div>
+                    <div class="weeks-affected">📅 Peak: Jul W2-3; Chronic: Jun W5, Aug W1</div>
+                    <div class="recommendation">
+                        <strong>Action:</strong> Architect IoT module by Jul W1; hand off implementation to junior devs. Move Climate Benchmarking to dedicated sprint (Oct-Nov).
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">HIGH</span>
+                    <span class="conflict-title">Dr. AKR: 11–12 Concurrent (Jun-Jul)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Impact:</strong> Bottleneck across 5+ tracks; no buffer for escalations; knowledge concentration risk.
+                    <div class="weeks-affected">📅 Peak: Jun W1-4, Jun W5, Jul W1-3; Chronic throughout</div>
+                    <div class="recommendation">
+                        <strong>Action:</strong> Assign deputy (Dr. Suriya or Dr. Natraj) to co-own 2–3 tracks. Document decision gates for each track.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">HIGH</span>
+                    <span class="conflict-title">Dr. Suriya: 10 Concurrent (Jun-Aug)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Impact:</strong> Senior resource over-utilized; steeper taper after Oct signals planning misalignment.
+                    <div class="weeks-affected">📅 Peak: Jun W2-4, Jul W1-3, Aug W1; Drops to 3–1 by Dec</div>
+                    <div class="recommendation">
+                        <strong>Action:</strong> Front-load knowledge transfer & training (Jun-Jul). Hand off routine validation to Pandi/Nithya by Aug.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-medium">MEDIUM</span>
+                    <span class="conflict-title">Prof. Velraj: 3 Concurrent (Oct-Nov)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Impact:</strong> Part-time/advisory role overloaded in Q4. Climate benchmarking (3 concurrent studies) needs dedicated sprint.
+                    <div class="weeks-affected">📅 Peak: Oct W1-4, Nov W1</div>
+                    <div class="recommendation">
+                        <strong>Action:</strong> Consolidate Climate studies into single integrated project; allocate dedicated intern support.
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="overlap-table">
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Person</th>
+                            <th>Count</th>
+                            <th>Status</th>
+                            <th>Top 3 Projects</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resource-table">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: DELIVERABLE OVERLAP -->
+        <div id="deliverable" class="tab-content">
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="label">Overlap Areas</div>
+                    <div class="value">11</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Tracks Involved</div>
+                    <div class="value">9</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Confirmed Redundant</div>
+                    <div class="value">2</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">Review Needed</div>
+                    <div class="value">9</div>
+                </div>
+            </div>
+
+            <div class="section-title">Study-Area Duplication by Theme</div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-critical">CRITICAL</span>
+                    <span class="conflict-title">Electrode Material (2 tracks)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Tracks:</strong> 
+                    <div class="track-list">
+                        <span class="track-badge">Power Efficiency</span>
+                        <span class="track-badge">Luminero</span>
+                    </div>
+                    <strong>Sub-projects:</strong>
+                    <div class="project-list">
+                        <span class="project-badge">Electrode Material Comparison (Power Efficiency)</span>
+                        <span class="project-badge">Electrode Material Development (Luminero)</span>
+                    </div>
+                    <strong>Status:</strong> Likely redundant — same material research repeated in parallel.
+                    <div class="recommendation">
+                        <strong>Consolidate:</strong> Merge into single "Electrode Material Research" project under Power Efficiency (primary); Luminero pulls results as dependency.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-critical">CRITICAL</span>
+                    <span class="conflict-title">MOF / Desiccant Research (2 tracks)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Tracks:</strong> 
+                    <div class="track-list">
+                        <span class="track-badge">Humidity</span>
+                        <span class="track-badge">JALVEER (unscheduled)</span>
+                    </div>
+                    <strong>Sub-projects:</strong>
+                    <div class="project-list">
+                        <span class="project-badge">MOF</span>
+                        <span class="project-badge">Desiccant Optimization</span>
+                        <span class="project-badge">Comparative Study (Humidity)</span>
+                        <span class="project-badge">MOF Desiccant Research (JALVEER)</span>
+                    </div>
+                    <strong>Status:</strong> Definite overlap — confirm if JALVEER track is active; if so, consolidate scope.
+                    <div class="recommendation">
+                        <strong>Action:</strong> If JALVEER is strategic, merge MOF/Desiccant into single track; otherwise, shelve JALVEER work until Humidity completes (Aug).
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">HIGH</span>
+                    <span class="conflict-title">Solar Power Integration (3 tracks)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Tracks:</strong> 
+                    <div class="track-list">
+                        <span class="track-badge">AWTH</span>
+                        <span class="track-badge">Power Grid</span>
+                        <span class="track-badge">JALVEER (unscheduled)</span>
+                    </div>
+                    <strong>Sub-projects:</strong>
+                    <div class="project-list">
+                        <span class="project-badge">Renewable Energy Powered Hydrogen System (AWTH)</span>
+                        <span class="project-badge">Solar-Powered AWG System (Power Grid)</span>
+                        <span class="project-badge">Solar Battery Energy Storage Study (Power Grid)</span>
+                        <span class="project-badge">Solar Integration Feasibility (JALVEER)</span>
+                    </div>
+                    <strong>Status:</strong> Significant duplication — 2 solar studies in Power Grid alone.
+                    <div class="recommendation">
+                        <strong>Refactor:</strong> Merge "Solar Battery" and "Solar-Powered AWG" into single "Solar Power Infrastructure for AWG" project. Rename as "Solar System Integration" and own by Power Grid lead.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">HIGH</span>
+                    <span class="conflict-title">Fan / Airflow Optimization (4 tracks)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Tracks:</strong> 
+                    <div class="track-list">
+                        <span class="track-badge">Product Dev</span>
+                        <span class="track-badge">Power Efficiency</span>
+                        <span class="track-badge">AWG Efficiency (backlog)</span>
+                        <span class="track-badge">JALVEER (backlog)</span>
+                    </div>
+                    <strong>Sub-projects:</strong>
+                    <div class="project-list">
+                        <span class="project-badge">Groove Pattern Development</span>
+                        <span class="project-badge">Fins Coating Efficiency Study</span>
+                        <span class="project-badge">Sound Reduction – Fan</span>
+                        <span class="project-badge">VFD Energy Optimization</span>
+                        <span class="project-badge">Warming-Up Fan Efficiency Study</span>
+                    </div>
+                    <strong>Status:</strong> Fragmented across multiple tracks; no single "fan system" project.
+                    <div class="recommendation">
+                        <strong>Consolidate:</strong> Create integrated "Fan & Airflow System Design" project under Product Dev; other tracks depend on results, not replicate.
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">HIGH</span>
+                    <span class="conflict-title">Climate / Temperature-Humidity Mapping (3 tracks)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Tracks:</strong> 
+                    <div class="track-list">
+                        <span class="track-badge">Power Efficiency</span>
+                        <span class="track-badge">AWG Efficiency (backlog)</span>
+                        <span class="track-badge">JALVEER (backlog)</span>
+                    </div>
+                    <strong>Sub-projects:</strong>
+                    <div class="project-list">
+                        <span class="project-badge">Snow Land Efficiency Improvement Study</span>
+                        <span class="project-badge">Desert vs Snow Climate Power Benchmarking</span>
+                        <span class="project-badge">Humidity Performance Mapping (JALVEER)</span>
+                    </div>
+                    <strong>Status:</strong> 2 parallel climate studies in Power Efficiency alone (Oct-Nov).
+                    <div class="recommendation">
+                        <strong>Merge:</strong> Single "Climate Performance Benchmarking" project (desert vs snow vs humid) under Power Efficiency. Run Oct-Nov with Prof. Velraj + intern.
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="overlap-table">
+                    <thead>
+                        <tr>
+                            <th>Theme</th>
+                            <th>Tracks</th>
+                            <th>Sub-projects</th>
+                            <th>Severity</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overlap-table">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: SUMMARY & RECOMMENDATIONS -->
+        <div id="summary" class="tab-content">
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>🔴 Top 5 Resource Risks</h3>
+                    <ul class="summary-list">
+                        <li><span class="priority-marker priority-1"></span><strong>Pandi overload (13 concurrent):</strong> Junior resource, burnout imminent. Reduce to 4 max by Jul W1.</li>
+                        <li><span class="priority-marker priority-1"></span><strong>Nithya bottleneck (13 concurrent):</strong> Tech lead split across 3 domains. Hand off IoT implementation to devs.</li>
+                        <li><span class="priority-marker priority-1"></span><strong>Dr. AKR dependency (11–12 concurrent):</strong> Knowledge concentration; escalation risk. Assign co-lead.</li>
+                        <li><span class="priority-marker priority-2"></span><strong>Dr. Suriya knowledge drain:</strong> High in Jun-Jul, drops sharply Oct+. Front-load training/docs by Jul.</li>
+                        <li><span class="priority-marker priority-2"></span><strong>Bench resources unused:</strong> Nithin Raj (10 projects), Yokesh (10 projects) unscheduled. Prioritize backlog or hire externally.</li>
+                    </ul>
+                </div>
+
+                <div class="summary-card">
+                    <h3>📦 Top 5 Deliverable Overlaps</h3>
+                    <ul class="summary-list">
+                        <li><span class="priority-marker priority-1"></span><strong>Electrode Material (2 tracks):</strong> Confirmed redundant. Merge Power Efficiency + Luminero into single study.</li>
+                        <li><span class="priority-marker priority-1"></span><strong>MOF/Desiccant (2 tracks):</strong> Humidity + JALVEER overlap. Consolidate or shelf JALVEER until Aug.</li>
+                        <li><span class="priority-marker priority-2"></span><strong>Solar Power (3 tracks):</strong> AWTH + Power Grid + JALVEER redundancy. Merge Power Grid studies; AWTH/JALVEER depend on results.</li>
+                        <li><span class="priority-marker priority-2"></span><strong>Fan/Airflow (4 tracks):</strong> Fragmented. Create single "Fan System Design" project; other tracks consume outputs.</li>
+                        <li><span class="priority-marker priority-2"></span><strong>Climate Mapping (3 tracks):</strong> 2 parallel Power Efficiency studies. Merge into single integrated study (Oct-Nov).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-title">📋 Phased Recovery Plan</div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-critical">PHASE 1</span>
+                    <span class="conflict-title">Emergency (Jun W1 – Jun W4)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Goals:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Cap Pandi at 6 concurrent (down from 7–10)</li>
+                        <li>✅ Cap Nithya at 8 concurrent (down from 10)</li>
+                        <li>✅ Assign Dr. Suriya or Dr. Natraj as deputy to Dr. AKR</li>
+                        <li>✅ Defer non-critical backlog items to Q3/Q4</li>
+                        <li>✅ Audit JALVEER dependencies; shelve if not active</li>
+                    </ul>
+                    <div class="recommendation">
+                        <strong>Owner:</strong> Project Director | <strong>Timeline:</strong> Jun W1 decisions by Jun 7
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">PHASE 2</span>
+                    <span class="conflict-title">Consolidation (Jul W1 – Aug W5)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Goals:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Merge Electrode Material studies (Power Eff + Luminero)</li>
+                        <li>✅ Consolidate Solar Power integration (single "Solar Infrastructure" project)</li>
+                        <li>✅ Integrate Fan/Airflow into single "Fan System Design" project</li>
+                        <li>✅ Front-load Dr. Suriya knowledge transfer (docs, training, SOPs)</li>
+                        <li>✅ Validate IoT architecture; hand off implementation to junior devs</li>
+                    </ul>
+                    <div class="recommendation">
+                        <strong>Owner:</strong> Track leads | <strong>Timeline:</strong> Jul W1 kickoff
+                    </div>
+                </div>
+            </div>
+
+            <div class="conflict-card">
+                <div class="conflict-header">
+                    <span class="severity-badge severity-high">PHASE 3</span>
+                    <span class="conflict-title">Optimization (Sep W1 – Nov W5)</span>
+                </div>
+                <div class="conflict-content">
+                    <strong>Goals:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>✅ Merge Climate studies into single "Climate Performance Benchmarking" (Oct-Nov)</li>
+                        <li>✅ Rebalance resource allocation as projects complete</li>
+                        <li>✅ Activate bench resources (Nithin Raj, Yokesh) on prioritized backlog</li>
+                        <li>✅ Validate MOF/Desiccant consolidation; shelve JALVEER if redundant</li>
+                        <li>✅ Monitor weekly load; adjust sprints dynamically</li>
+                    </ul>
+                    <div class="recommendation">
+                        <strong>Owner:</strong> PMO | <strong>Timeline:</strong> Ongoing review cycles
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">💡 Key Metrics to Track</div>
+
+            <div class="summary-card">
+                <h3>Weekly Workload Targets</h3>
+                <ul class="summary-list">
+                    <li><strong>Jun-Jul:</strong> Pandi 4–6 concurrent (from 10–13) | Nithya 6–8 concurrent (from 10–13)</li>
+                    <li><strong>Aug-Sep:</strong> Pandi 8–10 concurrent | Nithya 8–11 concurrent (acceptable for IoT push)</li>
+                    <li><strong>Oct+:</strong> All personnel ≤5 concurrent (completion phase)</li>
+                    <li><strong>Dr. AKR:</strong> Cap at 8 concurrent throughout (with deputy co-owning decisions)</li>
+                    <li><strong>Dr. Suriya:</strong> Front-load Jun-Aug; taper to mentoring role Sep+</li>
+                </ul>
+            </div>
+
+            <div class="summary-card">
+                <h3>Overlap Consolidation Metrics</h3>
+                <ul class="summary-list">
+                    <li>✅ <strong>Eliminate:</strong> 2 studies (Electrode Material, MOF/Desiccant) by Jul W1</li>
+                    <li>✅ <strong>Merge:</strong> Solar Power studies (1 study from 2) by Jul W4</li>
+                    <li>✅ <strong>Integrate:</strong> Fan/Airflow, Climate studies (1 study from 3–4 each) by Sep W1</li>
+                    <li>✅ <strong>Retire:</strong> JALVEER, AWG Efficiency, Water Dispensing if confirmed backlog (Sep W1 decision)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated from AWG R&D Portfolio Master Tracker | Overlap Analysis | May 26, 2026
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Activate selected button
+            event.target.classList.add('active');
+        }
+
+        // Resource conflict data (sample - top incidents)
+        const resourceConflicts = [
+            { week: 'Jul W2', person: 'Pandi', count: 13, status: '🔴 CRITICAL', projects: 'City-Specific Air Filter, PM2.5 Removal, Filter Lifecycle' },
+            { week: 'Jul W2', person: 'Nithya', count: 13, status: '🔴 CRITICAL', projects: 'City-Specific Air Filter, Coil Coating, Fins Efficiency' },
+            { week: 'Jun W3', person: 'Dr. AKR', count: 12, status: '🔴 CRITICAL', projects: 'Polymer Dev, Pre-Carbon Filter, Coil Coating' },
+            { week: 'Jun W3', person: 'Dr. Suriya', count: 10, status: '🟠 HIGH', projects: 'RH Sensors, Water Filtration, Coil Coating' },
+            { week: 'Jun W2', person: 'Pandi', count: 10, status: '🟠 HIGH', projects: 'Environmental Chamber, Pre-Carbon, Groove Pattern' },
+            { week: 'Jun W2', person: 'Nithya', count: 5, status: '🟡 MEDIUM', projects: 'UV Sterilization, Groove Pattern, Electrode Dev' },
+            { week: 'Aug W5', person: 'Pandi', count: 12, status: '🟠 HIGH', projects: 'Filter Lifecycle, VFD Energy, Solar-Powered AWG' },
+            { week: 'Aug W5', person: 'Nithya', count: 11, status: '🟠 HIGH', projects: 'Fins Efficiency, VFD Energy, Solar Studies' },
+        ];
+
+        const overlapData = [
+            { theme: 'Electrode Material', tracks: '2', projects: '2', severity: '🔴 Critical', action: 'Merge Power Eff + Luminero' },
+            { theme: 'MOF / Desiccant', tracks: '2', projects: '4', severity: '🔴 Critical', action: 'Consolidate or shelve JALVEER' },
+            { theme: 'Solar Power', tracks: '3', projects: '4', severity: '🟠 High', action: 'Merge Power Grid studies' },
+            { theme: 'Fan / Airflow', tracks: '4', projects: '5', severity: '🟠 High', action: 'Single "Fan System" project' },
+            { theme: 'Climate / Temp-Humidity', tracks: '3', projects: '3', severity: '🟠 High', action: 'Merge Power Eff studies' },
+            { theme: 'Hydrogen Systems', tracks: '3', projects: '7', severity: '🟡 Medium', action: 'Review track dependencies' },
+            { theme: 'Filter Lifecycle', tracks: '3', projects: '3', severity: '🟡 Medium', action: 'Coordinate validation phases' },
+            { theme: 'Air Quality', tracks: '3', projects: '5', severity: '🟡 Medium', action: 'Define scope boundaries' },
+        ];
+
+        function renderTables() {
+            // Resource table
+            const resourceTable = document.getElementById('resource-table');
+            resourceConflicts.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.week}</td>
+                    <td>${item.person}</td>
+                    <td style="font-weight: bold; color: #ef5350;">${item.count}</td>
+                    <td>${item.status}</td>
+                    <td style="font-size: 0.8em; color: #b0bec5;">${item.projects}</td>
+                `;
+                resourceTable.appendChild(tr);
+            });
+
+            // Overlap table
+            const overlapTable = document.getElementById('overlap-table');
+            overlapData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.theme}</strong></td>
+                    <td>${item.tracks}</td>
+                    <td>${item.projects}</td>
+                    <td>${item.severity}</td>
+                    <td style="color: #69f0ae;">${item.action}</td>
+                `;
+                overlapTable.appendChild(tr);
+            });
+        }
+
+        renderTables();
+    </script>
+</body>
+</html>

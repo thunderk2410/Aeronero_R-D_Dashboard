@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Backlog Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    padding:30px;
+}
+
+.container{
+    max-width:1800px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    font-size:48px;
+    color:#38bdf8;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    font-size:20px;
+    color:#cbd5e1;
+    margin-bottom:40px;
+}
+
+.summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:24px;
+    margin-bottom:40px;
+}
+
+.card{
+    background:rgba(255,255,255,0.06);
+    border-radius:22px;
+    padding:28px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+.card h2{
+    margin:0;
+    color:#38bdf8;
+    font-size:18px;
+}
+
+.card .value{
+    margin-top:12px;
+    font-size:36px;
+    font-weight:bold;
+}
+
+.table-container{
+    overflow-x:auto;
+    background:rgba(255,255,255,0.05);
+    border-radius:22px;
+    padding:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1700px;
+}
+
+th{
+    background:#1e40af;
+    padding:16px;
+    text-align:left;
+    font-size:15px;
+}
+
+td{
+    padding:15px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    vertical-align:top;
+    font-size:14px;
+}
+
+tr:hover{
+    background:rgba(255,255,255,0.03);
+}
+
+.track{
+    font-weight:bold;
+    color:#38bdf8;
+    font-size:15px;
+}
+
+.empty{
+    color:#fbbf24;
+    font-style:italic;
+}
+
+.footer{
+    margin-top:30px;
+    text-align:center;
+    color:#94a3b8;
+    font-size:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>BACKLOG — LONG HORIZON TRACKS</h1>
+
+<div class="subtitle">
+Complete speculative and undated R&D roadmap including blank-budget initiatives
+</div>
+
+<div class="summary">
+
+<div class="card">
+<h2>Total Backlog Budget</h2>
+<div class="value">₹95.6L</div>
+</div>
+
+<div class="card">
+<h2>Total Tracks</h2>
+<div class="value">4</div>
+</div>
+
+<div class="card">
+<h2>Total Phases</h2>
+<div class="value">32</div>
+</div>
+
+<div class="card">
+<h2>Longest Timeline</h2>
+<div class="value">2028</div>
+</div>
+
+</div>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>Track</th>
+<th>Phase / Sub-project</th>
+<th>Scope / Objective</th>
+<th>Approx Budget (Rs)</th>
+<th>Resources</th>
+<th>Source Timing</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 1 – Requirement Study & Architecture</td>
+<td>Workflow mapping for manufacturing, procurement, stores, finance, order systems</td>
+<td>400,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 2 – UI/UX & Dashboard Design</td>
+<td>Dashboard, workflow screens, mobile/web interface design</td>
+<td>500,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 3 – Core Software Development</td>
+<td>Manufacturing, procurement, inventory, finance modules</td>
+<td>1,800,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 4 – AI & Predictive Engine Development</td>
+<td>AI forecasting, analytics, stock prediction, procurement intelligence</td>
+<td>1,200,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 5 – Database & Cloud Infrastructure</td>
+<td>Cloud deployment, cybersecurity, backups</td>
+<td>400,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 6 – QR/Barcode & IoT Integration</td>
+<td>Barcode systems and smart inventory integration</td>
+<td>500,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 7 – ERP/API Integration</td>
+<td>Finance/accounting ERP integration</td>
+<td>700,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 8 – Testing & Validation</td>
+<td>Load testing, bug fixing, workflow validation</td>
+<td>400,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 9 – Pilot Deployment</td>
+<td>Deployment in Aeronero manufacturing/store environment</td>
+<td>20,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">ORKA</td>
+<td>Phase 10 – Training & Documentation</td>
+<td>Staff training, SOP preparation, user manuals</td>
+<td>200,000</td>
+<td>Dr. Natraj, Nithin Raj, Yokesh, Intern (TBH)</td>
+<td>To be decided after hiring</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 1 – Ayurvedic Research & Literature Study</td>
+<td>Selection of ayurvedic herbs and BIS/WHO compliance analysis</td>
+<td>15,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>August</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 2 – Herbal Material Screening & Toxicology</td>
+<td>Safety validation and compatibility testing</td>
+<td>200,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>September</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 3 – Cartridge Media Development</td>
+<td>Herbal filtration media and antimicrobial material development</td>
+<td>200,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Nov 2026 – Jan 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 4 – Cartridge Design & Prototyping</td>
+<td>Cartridge housing and modular structure optimization</td>
+<td>200,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Feb 2027 – Mar 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 5 – Water Quality & Scientific Testing</td>
+<td>pH, TDS, conductivity and microbial testing</td>
+<td>100,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Apr – Jun 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 6 – Antimicrobial & Stability Validation</td>
+<td>Bacterial inhibition and shelf-life analysis</td>
+<td>100,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Jul – Aug 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 7 – Smart Mineral Release Optimization</td>
+<td>Controlled mineral release and taste optimization</td>
+<td>50,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Sep – Nov 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 8 – Thermal & Environmental Testing</td>
+<td>Validation under humidity and temperature conditions</td>
+<td>50,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Dec 2027</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 9 – AWG Integration & Pilot Testing</td>
+<td>AWG system integration and pilot validation</td>
+<td>100,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Jan – Mar 2028</td>
+</tr>
+
+<tr>
+<td class="track">Ayurvedic</td>
+<td>Phase 10 – Certification & Regulatory Compliance</td>
+<td>BIS, WHO and food-grade certification</td>
+<td>200,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR, External team</td>
+<td>Apr – May 2028</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 1 – Scientific Literature & Research Planning</td>
+<td>Research framework and collaboration setup</td>
+<td class="empty">No budget specified</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>August</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 2 – Smart Cap & Acoustic Hardware Prototype</td>
+<td>Smart vibrating cap and embedded systems</td>
+<td>300,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Sep – Oct</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 3 – Frequency Generator & Acoustic Chamber Setup</td>
+<td>Controlled sound experimentation setup</td>
+<td>400,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Jul – Aug</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 4 – Water Molecular Analysis</td>
+<td>FTIR, Raman spectroscopy, pH and conductivity studies</td>
+<td class="empty">No budget specified</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Aug 3rd week – Sep 2nd week</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 5 – Cymatics Experimentation</td>
+<td>Water vibration visualization systems</td>
+<td>100,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Sep 3rd week – Oct 3rd week</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 8 – Prototype Bottle Integration</td>
+<td>AquAir bottling integration and pilot trials</td>
+<td>400,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Oct – Nov</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 9 – Data Analysis & Scientific Documentation</td>
+<td>Reports, patents and publication preparation</td>
+<td>200,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Dec 2026 – Feb 2027</td>
+</tr>
+
+<tr>
+<td class="track">AURAQUA</td>
+<td>Phase 10 – Industrial Validation & Scale-Up</td>
+<td>Pilot commercial deployment</td>
+<td>500,000</td>
+<td>Dr. Suriya, Dr. AKR</td>
+<td>Mar – Jun 2027</td>
+</tr>
+
+<tr>
+<td class="track">AWG Mobile</td>
+<td>Train-Based AWG System</td>
+<td>Atmospheric water generation systems for railway applications</td>
+<td>110,000</td>
+<td>Dr. Purnima, Dr. Suriya, Pandi, Dr. AKR</td>
+<td>8 weeks</td>
+</tr>
+
+<tr>
+<td class="track">AWG Mobile</td>
+<td>Bus-Based AWG System</td>
+<td>Compact AWG systems for buses and public transport</td>
+<td>95,000</td>
+<td>Dr. Suriya, Pandi, Dr. AKR</td>
+<td>7 weeks</td>
+</tr>
+
+<tr>
+<td class="track">AWG Mobile</td>
+<td>Ship-Based AWG System</td>
+<td>Marine-compatible AWG development</td>
+<td>120,000</td>
+<td>Dr. Purnima, Dr. Suriya, Pandi, Dr. AKR</td>
+<td>7 weeks</td>
+</tr>
+
+<tr>
+<td class="track">AWG Mobile</td>
+<td>Vibration-Resistant AWG Design</td>
+<td>Motion and vibration resistant AWG structure optimization</td>
+<td class="empty">No budget specified</td>
+<td class="empty">Not specified</td>
+<td class="empty">Not specified</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="footer">
+Backlog total (approx): ₹95,60,000
+</div>
+
+</div>
+
+</body>
+</html>

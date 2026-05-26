@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R&D Manpower & Hiring Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    padding:30px;
+}
+
+.container{
+    max-width:1800px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    color:#38bdf8;
+    font-size:48px;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#cbd5e1;
+    font-size:20px;
+    margin-bottom:40px;
+}
+
+.summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:24px;
+    margin-bottom:40px;
+}
+
+.card{
+    background:rgba(255,255,255,0.06);
+    border-radius:22px;
+    padding:28px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+.card h2{
+    margin:0;
+    color:#38bdf8;
+    font-size:18px;
+}
+
+.card .value{
+    margin-top:12px;
+    font-size:34px;
+    font-weight:bold;
+}
+
+.table-container{
+    overflow-x:auto;
+    background:rgba(255,255,255,0.05);
+    border-radius:22px;
+    padding:20px;
+    margin-bottom:40px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1400px;
+}
+
+th{
+    background:#1e40af;
+    padding:16px;
+    text-align:left;
+    font-size:15px;
+}
+
+td{
+    padding:15px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    vertical-align:top;
+    font-size:14px;
+}
+
+tr:hover{
+    background:rgba(255,255,255,0.03);
+}
+
+.role{
+    color:#38bdf8;
+    font-weight:bold;
+}
+
+.pending{
+    color:#fbbf24;
+    font-style:italic;
+}
+
+.section-title{
+    font-size:32px;
+    color:#38bdf8;
+    margin-bottom:20px;
+}
+
+.footer{
+    margin-top:30px;
+    text-align:center;
+    color:#94a3b8;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>R&D MANPOWER & HIRING DASHBOARD</h1>
+
+<div class="subtitle">
+Annual manpower cost structure and strategic hiring roadmap
+</div>
+
+<div class="summary">
+
+<div class="card">
+<h2>Annual Manpower Cost</h2>
+<div class="value">₹87.05L</div>
+</div>
+
+<div class="card">
+<h2>Hiring Budget</h2>
+<div class="value">₹2.04L</div>
+</div>
+
+<div class="card">
+<h2>Total Team Members</h2>
+<div class="value">13</div>
+</div>
+
+<div class="card">
+<h2>Open Compensation Roles</h2>
+<div class="value">2</div>
+</div>
+
+</div>
+
+<div class="section-title">R&D Manpower</div>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>Team Member</th>
+<th>Role</th>
+<th>Duration</th>
+<th>Monthly (Rs)</th>
+<th>Annual (Rs)</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Prof. Velraj</td>
+<td class="role">Chief Scientist</td>
+<td>12 Months</td>
+<td>60,000</td>
+<td>720,000</td>
+</tr>
+
+<tr>
+<td>Dr. Purnima</td>
+<td class="role">Chief Scientist</td>
+<td>12 Months</td>
+<td>200,000</td>
+<td>2,400,000</td>
+</tr>
+
+<tr>
+<td>Dr. Suriya</td>
+<td class="role">Head – R&D</td>
+<td>12 Months</td>
+<td>100,000</td>
+<td>1,200,000</td>
+</tr>
+
+<tr>
+<td>Dr. AKR</td>
+<td class="role">Senior Research Scientist</td>
+<td>12 Months</td>
+<td>100,000</td>
+<td>1,200,000</td>
+</tr>
+
+<tr>
+<td>Dr. Sathya Prasadh</td>
+<td class="role">Mechanical Engineering Research Advisor</td>
+<td>12 Months</td>
+<td class="pending">Yet to be finalized</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Dr. Natraj</td>
+<td class="role">Technical Research Advisor</td>
+<td>12 Months</td>
+<td class="pending">Yet to be finalized</td>
+<td>—</td>
+</tr>
+
+<tr>
+<td>Pandi</td>
+<td class="role">System Engineer – R&D</td>
+<td>12 Months</td>
+<td>25,000</td>
+<td>300,000</td>
+</tr>
+
+<tr>
+<td>Nithya</td>
+<td class="role">Product & System Development Lead</td>
+<td>12 Months</td>
+<td>60,000</td>
+<td>720,000</td>
+</tr>
+
+<tr>
+<td>Meduri Sitaram</td>
+<td class="role">Hydrogen Research Associate</td>
+<td>4 Months (Till Sept)</td>
+<td>50,000</td>
+<td>200,000</td>
+</tr>
+
+<tr>
+<td>Shivam</td>
+<td class="role">Mechanical Engineering Research Intern</td>
+<td>2 Months (Till July)</td>
+<td>37,500</td>
+<td>75,000</td>
+</tr>
+
+<tr>
+<td>Sudhanshu</td>
+<td class="role">Mechanical Engineering Research Intern</td>
+<td>2 Months (Till July)</td>
+<td>37,500</td>
+<td>75,000</td>
+</tr>
+
+<tr>
+<td>Shyam</td>
+<td class="role">Junior Technical Support</td>
+<td>1 Month (Till May End)</td>
+<td>15,000</td>
+<td>15,000</td>
+</tr>
+
+<tr>
+<td>Avinash</td>
+<td class="role">Industrial Product Design Consultant</td>
+<td>12 Months</td>
+<td>150,000</td>
+<td>1,800,000</td>
+</tr>
+
+<tr style="background:rgba(56,189,248,0.15);font-weight:bold;">
+<td colspan="3">Annual Total</td>
+<td></td>
+<td>₹8,705,000</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="section-title">Hiring Plan</div>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>Phase</th>
+<th>Position</th>
+<th>Reporting To</th>
+<th>Joining</th>
+<th>Duration</th>
+<th>Monthly (Rs)</th>
+<th>Total (Rs)</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>Phase 1</td>
+<td>R&D Technical Intern / Junior Project Associate</td>
+<td>Dr. Suriya & Alamelu</td>
+<td>2026-06-01</td>
+<td>6 Months</td>
+<td>17,000</td>
+<td>102,000</td>
+</tr>
+
+<tr>
+<td>Phase 2</td>
+<td>Mechanical & Product Development Intern / Junior Engineer</td>
+<td>Dr. Suriya & Alamelu</td>
+<td>July–August 2026</td>
+<td>6 Months</td>
+<td>17,000</td>
+<td>102,000</td>
+</tr>
+
+<tr style="background:rgba(56,189,248,0.15);font-weight:bold;">
+<td colspan="6">Hiring Total</td>
+<td>₹204,000</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="footer">
+Generated from R&D manpower and hiring planning sheet
+</div>
+
+</div>
+
+</body>
+</html>

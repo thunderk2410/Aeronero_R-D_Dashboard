@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Schedule — R&D Project Timeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #4fc3f7;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
+        }
+        .header p {
+            color: #90a4ae;
+            font-size: 0.95em;
+        }
+        .filters {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .filter-group label {
+            color: #90a4ae;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .filter-group select:hover {
+            border-color: #4fc3f7;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-card .label {
+            font-size: 0.75em;
+            color: #90a4ae;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .stat-card .value {
+            font-size: 1.5em;
+            color: #4fc3f7;
+            font-weight: bold;
+        }
+        .schedule-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+        .schedule-card h3 {
+            color: #4fc3f7;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .schedule-table thead {
+            background: rgba(79, 195, 247, 0.1);
+            border-bottom: 2px solid rgba(79, 195, 247, 0.3);
+        }
+        .schedule-table th {
+            padding: 12px 8px;
+            text-align: left;
+            color: #4fc3f7;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .schedule-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #e0e0e0;
+        }
+        .schedule-table tr:hover {
+            background: rgba(79, 195, 247, 0.05);
+        }
+        .project-name {
+            font-weight: 500;
+            color: #b0e0f5;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sub-project {
+            font-size: 0.9em;
+            color: #90a4ae;
+        }
+        .category-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+        .category-humidity { background: rgba(76, 175, 80, 0.2); color: #81c784; }
+        .category-water { background: rgba(33, 150, 243, 0.2); color: #64b5f6; }
+        .category-product { background: rgba(156, 39, 176, 0.2); color: #ba68c8; }
+        .category-awth { background: rgba(255, 152, 0, 0.2); color: #ffb74d; }
+        .category-power { background: rgba(244, 67, 54, 0.2); color: #ef5350; }
+        .category-grid { background: rgba(0, 188, 212, 0.2); color: #4dd0e1; }
+        .category-qlnz { background: rgba(63, 81, 181, 0.2); color: #7986cb; }
+        .category-iot { background: rgba(233, 30, 99, 0.2); color: #f06292; }
+        .category-luminero { background: rgba(255, 193, 7, 0.2); color: #fdd835; }
+        .timeline-bar {
+            display: inline-block;
+            height: 8px;
+            background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+            border-radius: 4px;
+            position: relative;
+            margin: 2px 0;
+        }
+        .timeline-bar:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            z-index: 10;
+        }
+        .budget {
+            color: #69f0ae;
+            font-weight: 500;
+        }
+        .resources {
+            color: #ffb74d;
+            font-size: 0.85em;
+        }
+        .summary-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 30px;
+        }
+        @media (max-width: 900px) {
+            .summary-section {
+                grid-template-columns: 1fr;
+            }
+            .schedule-table {
+                font-size: 0.75em;
+            }
+            .project-name {
+                max-width: 120px;
+            }
+        }
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-card h4 {
+            color: #69f0ae;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+        .info-list {
+            list-style: none;
+        }
+        .info-list li {
+            padding: 8px 0;
+            color: #e0e0e0;
+            font-size: 0.9em;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #78909c;
+            font-size: 0.85em;
+        }
+        .week-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 0.7em;
+            color: #90a4ae;
+        }
+        .active-cell {
+            background: rgba(79, 195, 247, 0.15) !important;
+            text-align: center;
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>R&D PROJECT WEEKLY SCHEDULE</h1>
+            <p>Complete timeline for all R&D initiatives (Jun 2026 – Jan 2027)</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="category-filter">Filter by Category:</label>
+                <select id="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="humidity">Humidity</option>
+                    <option value="water">Water Quality</option>
+                    <option value="product">Product Dev</option>
+                    <option value="awth">AWTH</option>
+                    <option value="power">Power Efficiency</option>
+                    <option value="grid">Power Grid</option>
+                    <option value="qlnz">QLNZ</option>
+                    <option value="iot">IoT Development</option>
+                    <option value="luminero">Luminero</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="budget-filter">Min Budget (₹):</label>
+                <select id="budget-filter">
+                    <option value="0">All</option>
+                    <option value="50000">₹50,000+</option>
+                    <option value="100000">₹1,00,000+</option>
+                    <option value="200000">₹2,00,000+</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="label">Total Projects</div>
+                <div class="value">77</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Total Budget</div>
+                <div class="value">₹96.8L</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Timeline</div>
+                <div class="value">32 Weeks</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Active Tracks</div>
+                <div class="value">9</div>
+            </div>
+        </div>
+
+        <div class="schedule-card">
+            <h3>Complete Schedule — All Projects</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th style="min-width: 180px;">Project / Sub-Project</th>
+                        <th>Category</th>
+                        <th>Budget (₹)</th>
+                        <th style="min-width: 150px;">Resources</th>
+                        <th style="min-width: 80px;">Start</th>
+                        <th style="min-width: 80px;">End</th>
+                        <th style="min-width: 200px;">Timeline</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body">
+                    <!-- Dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-section">
+            <div class="info-card">
+                <h4>📊 Schedule Summary</h4>
+                <ul class="info-list">
+                    <li><strong>Peak Activity:</strong> Week 13-21 (Oct-Nov 2026)</li>
+                    <li><strong>Longest Project:</strong> Filter Lifecycle Analysis (22 weeks)</li>
+                    <li><strong>Shortest Sprint:</strong> Multiple 1-week tasks</li>
+                    <li><strong>Concurrent Projects:</strong> Up to 20+ per week</li>
+                    <li><strong>Key Resources:</strong> Dr. AKR, Dr. Suriya, Pandi at capacity</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h4>⚠️ Key Considerations</h4>
+                <ul class="info-list">
+                    <li><strong>Humidity Track:</strong> Front-loaded (Jun-Aug)</li>
+                    <li><strong>IoT Rollout:</strong> Heavy in Oct-Nov</li>
+                    <li><strong>AWTH Projects:</strong> Spread from Jun to Jan</li>
+                    <li><strong>Validation Phase:</strong> Runs continuously Jun-Dec</li>
+                    <li><strong>Resource Risk:</strong> Pandi junior-grade with heavy load</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            Generated from AWG R&D Portfolio Master Tracker | Week of Jun 1, 2026 | Last Updated: May 26, 2026
+        </div>
+    </div>
+
+    <script>
+        // Schedule data
+        const scheduleData = [
+            // HUMIDITY
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'MOF', budget: 50000, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 0, end: 0 },
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'Polymer Development', budget: 0, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 0, end: 2 },
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'Desiccant Optimization', budget: 50000, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 0, end: 2 },
+            { category: 'humidity', project: 'Humidity Lab Calibration', subProject: 'RH Sensors across 10–95%', budget: 80000, resources: 'Dr. Purnima, Dr. Suriya, Pandi', start: 0, end: 3 },
+            { category: 'humidity', project: 'Humidity Lab Calibration', subProject: 'Environmental Chamber Setup', budget: 70000, resources: 'Dr. Purnima, Dr. Suriya, Pandi', start: 0, end: 5 },
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'Comparative Study', budget: 45000, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 2, end: 4 },
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'MOF and Polymer Composite', budget: 0, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 3, end: 3 },
+            { category: 'humidity', project: 'Humidity Efficiency', subProject: 'Stability Testing', budget: 55000, resources: 'Dr. Purnima, Shivam, Sudhanshu, Dr. AKR', start: 4, end: 6 },
+            
+            // WATER QUALITY
+            { category: 'water', project: 'Water Quality', subProject: 'Pre-Carbon Filtration Optimization', budget: 25000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 0, end: 3 },
+            { category: 'water', project: 'Water Quality', subProject: 'Sedimentation Filtration System', budget: 35000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 0, end: 3 },
+            { category: 'water', project: 'Water Quality', subProject: 'Post-Carbon Filtration Enhancement', budget: 40000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 0, end: 3 },
+            { category: 'water', project: 'Water Quality', subProject: 'Mineral Cartridge Development', budget: 120000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 0, end: 3 },
+            { category: 'water', project: 'Water Quality', subProject: 'UV Sterilization System Development', budget: 30000, resources: 'Dr. Suriya, Nithya, Dr. AKR', start: 0, end: 2 },
+            { category: 'water', project: 'Air Quality Optimization', subProject: 'City-Specific Air Filter Design', budget: 50000, resources: 'Dr. Suriya, Nithya, Pandi', start: 4, end: 7 },
+            { category: 'water', project: 'Air Quality Optimization', subProject: 'PM2.5 & PM10 Removal Study', budget: 50000, resources: 'Nithya, Pandi, Dr. AKR', start: 4, end: 7 },
+            { category: 'water', project: 'Validation and Compliance', subProject: 'Filter Lifecycle Analysis', budget: 70000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 4, end: 26 },
+            { category: 'water', project: 'Validation and Compliance', subProject: 'Multi-City Validation Testing', budget: 50000, resources: 'Dr. Suriya, Nithya, Pandi', start: 4, end: 7 },
+            { category: 'water', project: 'Validation and Compliance', subProject: 'WHO & BIS Water Compliance Validation', budget: 30000, resources: 'Nithya, Pandi, Dr. AKR', start: 8, end: 8 },
+            
+            // PRODUCT DEV
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Surface Area Optimization', budget: 100000, resources: 'Dr. Suriya, Dr. AKR', start: 0, end: 4 },
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Groove Pattern Development', budget: 100000, resources: 'Prof. Velraj, Nithya, Pandi', start: 1, end: 6 },
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Coil Coating Performance Study', budget: 150000, resources: 'Dr. Suriya, Nithya, Pandi, Dr. AKR', start: 1, end: 9 },
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Coil Material Development and Frost resistant Study', budget: 100000, resources: 'Nithya, Dr. AKR', start: 3, end: 7 },
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Fins Coating Efficiency Study', budget: 200000, resources: 'Dr. Suriya, Nithya, Pandi, Dr. AKR', start: 4, end: 14 },
+            { category: 'product', project: 'Product Dev – Coil Design', subProject: 'Corrosion-Resistant Coil Materials', budget: 100000, resources: 'Dr. Suriya, Nithya, Dr. AKR', start: 5, end: 9 },
+            
+            // AWTH
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'AWG Water to Hydrogen Conversion', budget: 200000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 0, end: 5 },
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'Electrolysis Efficiency Optimization', budget: 100000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 5, end: 9 },
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'Hydrogen Storage System Development', budget: 200000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 9, end: 15 },
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'Renewable Energy Powered Hydrogen System', budget: 200000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 16, end: 20 },
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'Hydrogen Safety System', budget: 150000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 17, end: 20 },
+            { category: 'awth', project: 'Air-Water-Hydrogen', subProject: 'Hydrogen Fuel - supported for appliances', budget: 100000, resources: 'Dr. Purnima, Meduri Sitaram, Shivam, Sudhanshu, Dr. AKR', start: 21, end: 31 },
+            
+            // POWER EFFICIENCY
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Electrode Material Comparison', budget: 100000, resources: 'Dr. Suriya, Nithya, Pandi, Dr. Alamelu', start: 4, end: 9 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'BLDC Compressor', budget: 150000, resources: 'Prof. Velraj, Nithya, Pandi, Dixon', start: 5, end: 11 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Cold Temperature Refrigeration Optimization', budget: 50000, resources: 'Prof. Velraj, Nithya, Pandi, Dixon', start: 6, end: 6 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Sound Reduction – Fan', budget: 25000, resources: 'Prof. Velraj, Nithya, Pandi, Dixon', start: 7, end: 7 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'VFD Energy Optimization', budget: 200000, resources: 'Prof. Velraj, Nithya, Pandi, Dixon', start: 13, end: 17 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Warming-Up Fan Efficiency Study', budget: 75000, resources: 'Prof. Velraj, Nithya, Pandi, Dixon', start: 18, end: 22 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Snow Land Efficiency Improvement Study', budget: 200000, resources: 'Prof. Velraj', start: 18, end: 22 },
+            { category: 'power', project: 'Product Dev – Efficiency', subProject: 'Desert vs Snow Climate Power Benchmarking', budget: 200000, resources: 'Prof. Velraj, Nithya', start: 18, end: 22 },
+            
+            // POWER GRID
+            { category: 'grid', project: 'Off-Grid Power Development', subProject: 'Solar-Powered AWG System', budget: 225000, resources: 'Nithya, Pandi, Dr. AKR', start: 8, end: 17 },
+            { category: 'grid', project: 'Off-Grid Power Development', subProject: 'Solar Battery Energy Storage Study', budget: 150000, resources: 'Nithya, Pandi, Dr. AKR', start: 8, end: 17 },
+            { category: 'grid', project: 'Off-Grid Power Development', subProject: 'Hydrogen Fuel Cell Integration', budget: 225000, resources: 'Dr. Purnima, Dr. Suriya, Meduri Sitaram, Dr. AKR', start: 8, end: 19 },
+            
+            // QLNZ
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Laundry Grey Water Collection System', budget: 30000, resources: 'Dr. Suriya, Dr. AKR, Intern', start: 3, end: 3 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Multi-Stage Grey Water Filtration', budget: 80000, resources: 'Dr. Suriya, Dr. AKR, Intern', start: 6, end: 6 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Fresh Water Mixing Optimization', budget: 20000, resources: 'Dr. Suriya, Pandi', start: 6, end: 6 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Detergent Residue Removal Study', budget: 100000, resources: 'Dr. Suriya, Dr. AKR, Intern', start: 7, end: 7 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Odor & Bacteria Control System', budget: 100000, resources: 'Dr. Suriya, Pandi', start: 7, end: 9 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Membrane Filtration Optimization', budget: 200000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 10, end: 16 },
+            { category: 'qlnz', project: 'QLNZ – Grey Water Recycling', subProject: 'Filter Cartridge Lifecycle Analysis', budget: 105000, resources: 'Dr. Suriya, Pandi, Dr. AKR', start: 17, end: 21 },
+            
+            // LUMINERO
+            { category: 'luminero', project: 'Luminero', subProject: 'Electrode Material Development', budget: 20000, resources: 'Nithya, Pandi, Dr. AKR', start: 0, end: 3 },
+            { category: 'luminero', project: 'Luminero', subProject: 'Electrolyte Composition Study', budget: 10000, resources: 'Nithya, Pandi, Dr. AKR', start: 4, end: 4 },
+            { category: 'luminero', project: 'Luminero', subProject: 'Power Boosting circuit', budget: 10000, resources: 'Nithya, Pandi, Dr. AKR', start: 6, end: 6 },
+            { category: 'luminero', project: 'Luminero', subProject: 'Electrolysis Cell Optimization', budget: 18000, resources: 'Nithya, Pandi, Dr. AKR', start: 7, end: 7 },
+            
+            // IOT DEVELOPMENT
+            { category: 'iot', project: 'IoT Development', subProject: 'IoT-Based AWG Monitoring System', budget: 350000, resources: 'Dr. Suriya, Dr. Natraj, Nithya, Pandi, Intern, External team', start: 1, end: 9 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Sensor Integration & Calibration', budget: 220000, resources: 'Dr. Suriya, Dr. Natraj, Nithya, Pandi, Intern', start: 9, end: 14 },
+            { category: 'iot', project: 'IoT Development', subProject: 'PCB Design & Embedded Controller Development', budget: 400000, resources: 'Dr. Suriya, Dr. Natraj, Nithya, Pandi, Intern', start: 9, end: 14 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Remote Device Communication System', budget: 280000, resources: 'Dr. Suriya, Dr. Natraj, Nithya, Pandi, Intern', start: 13, end: 15 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Aeronero CRM Platform Development', budget: 500000, resources: 'Dr. Suriya, Nithya, Pandi, External team', start: 13, end: 17 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Predictive Maintenance & Alert System', budget: 250000, resources: 'Dr. Suriya, Dr. Natraj, Nithya, Pandi', start: 13, end: 17 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Production Monitoring Dashboard', budget: 220000, resources: 'Dr. Suriya, Nithya, Pandi', start: 13, end: 21 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Mobile App Integration', budget: 300000, resources: 'Nithya, External team', start: 13, end: 21 },
+            { category: 'iot', project: 'IoT Development', subProject: 'Cloud Database & Data Logging Infrastructure', budget: 300000, resources: 'Dr. Natraj, Nithya, Pandi', start: 17, end: 21 },
+            { category: 'iot', project: 'IoT Development', subProject: 'IoT Pilot Deployment & Validation', budget: 250000, resources: 'Dr. Natraj, Nithya, Pandi', start: 21, end: 30 },
+        ];
+
+        // Category to class mapping
+        const categoryMap = {
+            humidity: 'category-humidity',
+            water: 'category-water',
+            product: 'category-product',
+            awth: 'category-awth',
+            power: 'category-power',
+            grid: 'category-grid',
+            qlnz: 'category-qlnz',
+            iot: 'category-iot',
+            luminero: 'category-luminero'
+        };
+
+        // Function to format currency
+        function formatCurrency(amount) {
+            if (amount === 0) return '—';
+            return '₹' + (amount / 100000).toFixed(2) + 'L';
+        }
+
+        // Function to get week ranges
+        function getWeekRange(startWeek, endWeek) {
+            const monthMap = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+            const weeksPerMonth = [5, 4, 5, 4, 5, 4, 5, 4];
+            
+            let start = 0;
+            for (let i = 0; i < monthMap.length; i++) {
+                if (startWeek < weeksPerMonth.slice(0, i + 1).reduce((a, b) => a + b, 0)) {
+                    return `W${startWeek % weeksPerMonth[i] || weeksPerMonth[i]} ${monthMap[i]}`;
+                }
+            }
+            return `W${startWeek}`;
+        }
+
+        // Render table
+        function renderTable(filterCategory = '', filterBudget = 0) {
+            const tbody = document.getElementById('schedule-body');
+            tbody.innerHTML = '';
+
+            let filtered = scheduleData.filter(item => {
+                const matchCategory = !filterCategory || item.category === filterCategory;
+                const matchBudget = !filterBudget || item.budget >= filterBudget;
+                return matchCategory && matchBudget;
+            });
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                const duration = item.end - item.start + 1;
+                
+                tr.innerHTML = `
+                    <td><div class="project-name">${item.subProject}</div><div class="sub-project">${item.project}</div></td>
+                    <td><span class="category-tag ${categoryMap[item.category]}">${item.category.toUpperCase()}</span></td>
+                    <td class="budget">${formatCurrency(item.budget)}</td>
+                    <td class="resources">${item.resources.split(',').length} people</td>
+                    <td>W${item.start}</td>
+                    <td>W${item.end}</td>
+                    <td><div class="timeline-bar" style="width: ${duration * 15}px;" data-tooltip="${duration} weeks"></div></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filter event listeners
+        document.getElementById('category-filter').addEventListener('change', (e) => {
+            const budget = document.getElementById('budget-filter').value;
+            renderTable(e.target.value, parseFloat(budget));
+        });
+
+        document.getElementById('budget-filter').addEventListener('change', (e) => {
+            const category = document.getElementById('category-filter').value;
+            renderTable(category, parseFloat(e.target.value));
+        });
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
